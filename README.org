@@ -30,7 +30,7 @@ Create the /etc/wireguard/wg0.conf file with the following and replace
 
 #+BEGIN_EXAMPLE
 [Interface]
-PrivateKey = <private key here
+PrivateKey = <private key here>
 Address = 192.168.2.X/24
 
 [Peer]
@@ -74,6 +74,17 @@ sudo ip link add dev wg0 type wireguard
 sudo ip address add dev wg0 192.168.2.X/24
 sudo ip address add dev wg0 192.168.2.X peer 192.168.2.1
 sudo wg set wg0 private-key /path/to/private-key peer iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U= allowed-ips 0.0.0.0/0 endpoint 3.21.212.159:53
+wg showconf wg0 > /etc/wireguard/wg0.conf
+#+END_EXAMPLE
+
+In order to run the service, run:
+#+BEGIN_EXAMPLE
+sudo wg-quick up wg0
+#+END_EXAMPLE
+
+In order to stop the service, run:
+#+BEGIN_EXAMPLE
+sudo wg-quick down wg0
 #+END_EXAMPLE
 
 * Wireguard VPN verification
