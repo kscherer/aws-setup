@@ -1,0 +1,118 @@
+#+STARTUP: hidestars indent showeverything
+#+TITLE: User Setup
+
+* Local Wireguard Setup
+
+1) Install wireguard and create Wireguard keys. Official docs are here:
+
+https://www.wireguard.com/quickstart/
+
+#+BEGIN_EXAMPLE
+wg genkey | tee wireguard-$USER-privatekey | wg pubkey > wireguard-$USER-publickey
+#+END_EXAMPLE
+
+Send Wireguard pubic key to the wireguard admin. Once the key is
+installed on the wireguard server you will receive an IP address which
+will be your system IP in the Wireguard mesh network.
+
+* Wireguard VPN setup
+
+There are at least three different ways to setup the wireguard VPN:
+full manual, wg-quick and NetworkManager.
+
+** Manual
+
+Replace 192.168.2.X with the IP you were assigned:
+
+#+BEGIN_EXAMPLE
+sudo
+ip link add dev wg0 type wireguard
+ip address add dev wg0 192.168.2.X/24
+ip address add dev wg0 192.168.2.X peer 192.168.2.1
+wg set wg0 private-key /path/to/private-key peer iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U= allowed-ips 0.0.0.0/0 endpoint 3.21.212.159:53
+#+END_EXAMPLE
+
+** wg-quick
+
+Create the /etc/wireguard/wg0.conf file with the following and replace
+192.168.2.X with the IP you were assigned:
+
+#+BEGIN_EXAMPLE
+[Interface]
+PrivateKey = <private key here
+Address = 192.168.2.X/24
+
+[Peer]
+PublicKey = iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U=
+EndPoint  = 3.21.212.159:53
+AllowedIPs = 192.168.2.0/8
+#+END_EXAMPLE
+
+Then run the wg-quick command as root:
+#+BEGIN_EXAMPLE
+sudo wg-quick up wg0
+#+END_EXAMPLE
+
+To terminate the connection:
+
+#+BEGIN_EXAMPLE
+sudo wg-quick down wg0
+#+END_EXAMPLE
+
+** Network Manager
+
+Here is a link with some screen captures of the process:
+
+https://www.ivpn.net/setup/wg-linux-netman.html
+
+Server public key: iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U=
+Allowed IPs 0.0.0.0/0
+Endpoint address: 3.21.212.159:53
+The IP of your host in the mesh is 192.168.2.X
+
+In the IPv4 section there is a Routes button. Click this and then
+select "Use only for resources on this connection"
+
+* Wireguard VPN verification
+
+First verify that Wireguard is running:
+
+#+BEGIN_EXAMPLE
+sudo wg show
+#+END_EXAMPLE
+
+It is important that only AWS traffic from your machine is routed
+through the VPN. Otherwise we will be charged for all egress traffic
+from AWS. The easiest way to check is to verify that traffic to
+google.com is not going through AWS:
+
+#+BEGIN_EXAMPLE
+mtr google.com
+#+END_EXAMPLE
+
+Please ensure that you do not see any hosts with aws in the
+traceroute. If it does, please do not use the VPN until we can figure
+out how to reconfigure it.
+
+* SSH access
+
+Please send your public ssh key to the wireguard admin. Once installed
+you will be able to ssh to the wireguard server.
+
+#+BEGIN_EXAMPLE
+ssh ubuntu@192.168.2.1
+#+END_EXAMPLE
+
+This VM is reserved for wireguard and no suitable for working. It will
+be used as a bridge to other servers within AWS. Please add the
+following to your $HOME/.ssh/config to be able to tunnel directly to
+the AWS instances:
+
+#+BEGIN_EXAMPLE
+# Tunnel to private subnet over VPN server
+Host 10.0.2.*
+  User ubuntu
+  ProxyCommand ssh -W %h:%p  ubuntu@192.168.2.1
+#+END_EXAMPLE
+
+
