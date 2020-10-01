@@ -32,6 +32,8 @@ ip address add dev wg0 192.168.2.X peer 192.168.2.1
 wg set wg0 private-key /path/to/private-key peer iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U= allowed-ips 0.0.0.0/0 endpoint 3.21.212.159:53
 #+END_EXAMPLE
 
+The wireguard project provides a helper script that does this called wg-quick.
+
 ** wg-quick
 
 Create the /etc/wireguard/wg0.conf file with the following and replace
@@ -48,15 +50,16 @@ EndPoint  = 3.21.212.159:53
 AllowedIPs = 192.168.2.0/8
 #+END_EXAMPLE
 
-Then run the wg-quick command as root:
+Then create and run the service:
 #+BEGIN_EXAMPLE
-sudo wg-quick up wg0
+sudo systemctl enable wg-quick@wg0
+sudo systemctl start wg-quick@wg0
 #+END_EXAMPLE
 
 To terminate the connection:
 
 #+BEGIN_EXAMPLE
-sudo wg-quick down wg0
+sudo systemctl stop wg-quick@wg0
 #+END_EXAMPLE
 
 ** Network Manager
