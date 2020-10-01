@@ -110,7 +110,7 @@ the AWS instances:
 
 #+BEGIN_EXAMPLE
 # Tunnel to private subnet over VPN server
-Host 10.0.2.*
+Host 10.0.101.*
   User ubuntu
   ProxyCommand ssh -W %h:%p  ubuntu@192.168.2.1
 #+END_EXAMPLE
