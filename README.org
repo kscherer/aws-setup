@@ -18,21 +18,10 @@ will be your system IP in the Wireguard mesh network.
 * Wireguard VPN setup
 
 There are at least three different ways to setup the wireguard VPN:
-full manual, wg-quick and NetworkManager.
+wg-quick, NetworkManager or manually.
 
-** Manual
-
-Replace 192.168.2.X with the IP you were assigned:
-
-#+BEGIN_EXAMPLE
-sudo
-ip link add dev wg0 type wireguard
-ip address add dev wg0 192.168.2.X/24
-ip address add dev wg0 192.168.2.X peer 192.168.2.1
-wg set wg0 private-key /path/to/private-key peer iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U= allowed-ips 0.0.0.0/0 endpoint 3.21.212.159:53
-#+END_EXAMPLE
-
-The wireguard project provides a helper script that does this called wg-quick.
+The wg-quick helper script from the wireguard project is the
+recommended way to get started.
 
 ** wg-quick
 
@@ -76,6 +65,17 @@ The IP of your host in the mesh is 192.168.2.X
 In the IPv4 section there is a Routes button. Click this and then
 select "Use only for resources on this connection"
 
+** Manual
+
+Replace 192.168.2.X with the IP you were assigned:
+
+#+BEGIN_EXAMPLE
+sudo ip link add dev wg0 type wireguard
+sudo ip address add dev wg0 192.168.2.X/24
+sudo ip address add dev wg0 192.168.2.X peer 192.168.2.1
+sudo wg set wg0 private-key /path/to/private-key peer iEtvCuJpaSlj8ghumrp0CA4Y8yqIy8YZrvJD4AcW22U= allowed-ips 0.0.0.0/0 endpoint 3.21.212.159:53
+#+END_EXAMPLE
+
 * Wireguard VPN verification
 
 First verify that Wireguard is running:
@@ -86,8 +86,8 @@ sudo wg show
 
 It is important that only AWS traffic from your machine is routed
 through the VPN. Otherwise we will be charged for all egress traffic
-from AWS. The easiest way to check is to verify that traffic to
-google.com is not going through AWS:
+from AWS. The easiest way to check is to verify that traffic
+traceroute to google.com is the same with the VPN enabled and disabled:
 
 #+BEGIN_EXAMPLE
 mtr google.com
