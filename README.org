@@ -129,4 +129,38 @@ Host 10.0.101.*
   ProxyCommand ssh -W %h:%p  ubuntu@192.168.2.1
 #+END_EXAMPLE
 
+* Why not a private subnet?
 
+Putting the instances in a private subnet requires a NAT gateway and
+those are very expensive. At the time of writing, the cost is
+$0.045/hr plus $0.045 per GB of traffic:
+
+https://aws.amazon.com/vpc/pricing/
+
+An instance in a public subnet with a public IP does not have to pay
+for the NAT gateway nor the bandwidth used.
+
+* Why use Wireguard VPN
+
+The typical way to give people access to EC2 instances is to create an
+instance in the default public subnet and enable SSH port 22 in the
+security group and give people access. This works but has some
+drawbacks:
+
+- Port 22 is open on the instance and restricting access to specific
+  IPs can be difficult especially now when everyone is working from
+  home.
+
+- The temptation to open more ports on the security group will be
+  high. Of course ssh should be used to tunnel ports safely but
+  everyone needs to know how to make use of it.
+
+Using the Wireguard VPN has several benefits:
+
+- None of the public IPs has any open ports. Even the Wireguard port
+  is not discovered by a port scan.
+
+- It serves as an entrance point to enable access to private
+  subnets. This way there is a single way to access all subnets. This
+  requires the security groups be setup properly and possibly VPC
+  peering as well, but the user workflow stays the same.
